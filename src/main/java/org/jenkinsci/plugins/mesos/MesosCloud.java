@@ -34,6 +34,7 @@ import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Label;
 import hudson.model.Node;
+import hudson.model.listeners.SaveableListener;
 import hudson.security.ACL;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProvisioner.PlannedNode;
@@ -56,16 +57,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MesosCloud extends Cloud {
   private static final String DEFAULT_DECLINE_OFFER_DURATION = "600000"; // 10 mins.
+  private static final String DEFAULT_FAILOVER_TIMEOUT = "0.0"; 
   private String nativeLibraryPath;
   private String master;
   private String description;
@@ -73,6 +72,8 @@ public class MesosCloud extends Cloud {
   private String role;
   private String slavesUser;
   private String credentialsId;
+  private String cloudID;
+
   /**
    * @deprecated Create credentials then use credentialsId instead.
    */
@@ -87,6 +88,7 @@ public class MesosCloud extends Cloud {
   private boolean onDemandRegistration; // If set true, this framework disconnects when there are no builds in the queue and re-registers when there are.
   private String jenkinsURL;
   private String declineOfferDuration;
+  private String failoverTimeout;
 
   // Find the default values for these variables in
   // src/main/resources/org/jenkinsci/plugins/mesos/MesosCloud/config.jelly.
@@ -106,6 +108,7 @@ public class MesosCloud extends Cloud {
 
   @Initializer(after=InitMilestone.JOB_LOADED)
   public static void init() {
+
     Jenkins jenkins = getJenkins();
     List<Node> slaves = jenkins.getNodes();
 
@@ -159,10 +162,12 @@ public class MesosCloud extends Cloud {
       boolean checkpoint,
       boolean onDemandRegistration,
       String jenkinsURL,
-      String declineOfferDuration) throws NumberFormatException {
+      String declineOfferDuration,
+      String failoverTimeout,
+      String cloudID) throws NumberFormatException {
     this("MesosCloud", nativeLibraryPath, master, description, frameworkName, role,
          slavesUser, credentialsId, principal, secret, slaveInfos, checkpoint, onDemandRegistration,
-         jenkinsURL, declineOfferDuration);
+         jenkinsURL, declineOfferDuration, failoverTimeout, cloudID);
   }
 
   /**
@@ -185,7 +190,9 @@ public class MesosCloud extends Cloud {
       boolean checkpoint,
       boolean onDemandRegistration,
       String jenkinsURL,
-      String declineOfferDuration) throws NumberFormatException {
+      String declineOfferDuration,
+      String failoverTimeout,
+      String cloudID) throws NumberFormatException {
     super(cloudName);
 
     this.nativeLibraryPath = nativeLibraryPath;
@@ -203,6 +210,8 @@ public class MesosCloud extends Cloud {
     this.onDemandRegistration = onDemandRegistration;
     this.setJenkinsURL(jenkinsURL);
     this.setDeclineOfferDuration(declineOfferDuration);
+    this.setFailoverTimeout(failoverTimeout);
+    this.setCloudID(cloudID);
     if(!onDemandRegistration) {
 	    JenkinsScheduler.SUPERVISOR_LOCK.lock();
 	    try {
@@ -224,7 +233,8 @@ public class MesosCloud extends Cloud {
   public MesosCloud(@Nonnull String name, @Nonnull MesosCloud source) {
       this(name, source.nativeLibraryPath, source.master, source.description, source.frameworkName,
            source.role, source.slavesUser, source.credentialsId, source.principal, source.secret, source.slaveInfos,
-           source.checkpoint, source.onDemandRegistration, source.jenkinsURL, source.declineOfferDuration);
+           source.checkpoint, source.onDemandRegistration, source.jenkinsURL, source.declineOfferDuration, 
+           source.failoverTimeout, source.cloudID);
   }
 
   @Override
@@ -253,6 +263,11 @@ public class MesosCloud extends Cloud {
         return false;
     } else if (!description.equals(other.description))
       return false;
+    if (failoverTimeout == null) {
+        if (other.failoverTimeout != null)
+          return false;
+      } else if (!failoverTimeout.equals(other.failoverTimeout))
+        return false;
     if (frameworkName == null) {
       if (other.frameworkName != null)
         return false;
@@ -302,6 +317,7 @@ public class MesosCloud extends Cloud {
     result =
         prime * result + ((declineOfferDuration == null) ? 0 : declineOfferDuration.hashCode());
     result = prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((failoverTimeout == null) ? 0 : failoverTimeout.hashCode());
     result = prime * result + ((frameworkName == null) ? 0 : frameworkName.hashCode());
     result = prime * result + ((jenkinsURL == null) ? 0 : jenkinsURL.hashCode());
     result = prime * result + ((master == null) ? 0 : master.hashCode());
@@ -490,6 +506,12 @@ public class MesosCloud extends Cloud {
   public void setFrameworkName(String frameworkName) {
     this.frameworkName = frameworkName;
   }
+
+  public String getCloudID() {
+    return this.cloudID;
+  }
+
+  public void setCloudID(String cloudID) { this.cloudID = cloudID; }
 
   public String getRole() {
     return role;
@@ -688,9 +710,32 @@ public void setJenkinsURL(String jenkinsURL) {
       this.declineOfferDuration = DEFAULT_DECLINE_OFFER_DURATION;
     }
   }
+  
+  public String getFailoverTimeout() {
+	  if(failoverTimeout.isEmpty() || failoverTimeout == null) {
+        failoverTimeout = DEFAULT_FAILOVER_TIMEOUT;
+      }
+		return failoverTimeout;
+	}
+
+  public double getFailoverTimeoutDouble() {
+    try {
+        return Double.parseDouble(getFailoverTimeout());
+      } catch (NumberFormatException e) {
+        LOGGER.warning("Unable to parse failoverTimeout: " + failoverTimeout
+               + ". Using default " + DEFAULT_FAILOVER_TIMEOUT + ".");
+        this.failoverTimeout = DEFAULT_FAILOVER_TIMEOUT;
+      }
+        return Double.parseDouble(getFailoverTimeout());
+    }
+  
+  public void setFailoverTimeout(String failoverTimeout) {
+		this.failoverTimeout = failoverTimeout;
+	}
 
 @Extension
   public static class DescriptorImpl extends Descriptor<Cloud> {
+
     @Override
     public String getDisplayName() {
       return "Mesos Cloud";

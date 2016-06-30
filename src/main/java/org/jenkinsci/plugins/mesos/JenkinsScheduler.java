@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2013 Twitter, Inc. and other contributors.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,6 +144,7 @@ public class JenkinsScheduler implements Scheduler {
     String principal = credentials == null ? "jenkins" : credentials.getUsername();
     String secret = credentials == null ? "" : Secret.toString(credentials.getPassword());
     // Have Mesos fill in the current user.
+    
     FrameworkInfo framework = FrameworkInfo.newBuilder()
             .setUser(targetUser == null ? "" : targetUser)
             .setName(mesosCloud.getFrameworkName())
@@ -150,14 +152,17 @@ public class JenkinsScheduler implements Scheduler {
             .setPrincipal(principal)
             .setCheckpoint(mesosCloud.isCheckpoint())
             .setWebuiUrl(webUrl != null ? webUrl : "")
+            // Set a failover timeout so that tasks are not immediately killed
+            // when the scheduler disconnects.
+            .setFailoverTimeout(mesosCloud.getFailoverTimeoutDouble())
             .build();
 
     LOGGER.info("Initializing the Mesos driver with options"
             + "\n" + "Framework Name: " + framework.getName()
             + "\n" + "Principal: " + principal
             + "\n" + "Checkpointing: " + framework.getCheckpoint()
+            + "\n" + "Failover Timeout: " + framework.getFailoverTimeout()
     );
-
     if (StringUtils.isNotBlank(secret)) {
 
       Credential credential = Credential.newBuilder()
