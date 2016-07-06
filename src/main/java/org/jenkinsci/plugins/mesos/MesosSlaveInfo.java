@@ -489,6 +489,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     private final String networking;
     private static final String DEFAULT_NETWORKING = Network.BRIDGE.name();
     private final List<PortMapping> portMappings;
+    private final List<NetworkInfo> networkInfos;
     private final boolean useCustomDockerCommandShell;
     private final String customDockerCommandShell;
     private final Boolean dockerPrivilegedMode;
@@ -506,7 +507,8 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
                          List<Volume> volumes,
                          List<Parameter> parameters,
                          String networking,
-                         List<PortMapping> portMappings) throws FormException {
+                         List<PortMapping> portMappings,
+                         List<NetworkInfo> networkInfos) throws FormException {
       this.type = type;
       this.dockerImage = dockerImage;
       this.dockerPrivilegedMode = dockerPrivilegedMode;
@@ -516,6 +518,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       this.customDockerCommandShell = customDockerCommandShell;
       this.volumes = volumes;
       this.parameters = parameters;
+      this.networkInfos = networkInfos;
 
       if (networking == null) {
           this.networking = DEFAULT_NETWORKING;
@@ -542,7 +545,8 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
                 volumes,
                 parameters,
                 networking,
-                portMappings
+                portMappings,
+                networkInfos
         );
     }
 
@@ -561,6 +565,10 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     public List<Parameter> getParameters() {
       return parameters;
     }
+
+    public List<NetworkInfo> getNetworkInfos() {
+          return networkInfos;
+      }
 
     public String getNetworking() {
       if (networking != null) {
@@ -841,4 +849,172 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       return result;
     }
   }
+
+  public static class NetworkInfo extends AbstractDescribableImpl<NetworkInfo> {
+    @Extension
+    public static class DescriptorImpl extends Descriptor<NetworkInfo> {
+        public String getDisplayName() { return ""; }
+    }
+
+    private final String networkName;
+    private final List<IPAddress> ipAddresses;
+    private final List<Group> groups;
+    private final List<NetworkLabel> labels;
+
+    @DataBoundConstructor
+    public NetworkInfo(String networkName, List<IPAddress> ipAddresses, List<Group> groups, List<NetworkLabel> labels) {
+        this.networkName = networkName;
+        this.ipAddresses = ipAddresses;
+        this.groups = groups;
+        this.labels = labels;
+    }
+
+    public String getNetworkName() {
+        return networkName;
+    }
+
+    public List<IPAddress> getIpAddresses() { return ipAddresses; }
+
+    public List<Group> getGroups() { return groups; }
+
+    public List<NetworkLabel> getNetworkLabels() { return labels; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NetworkInfo networkInfo = (NetworkInfo) o;
+
+        if (networkName != null ? !networkName.equals(networkInfo.networkName) : networkInfo.networkName != null) return false;
+        if (ipAddresses != null ? !ipAddresses.equals(networkInfo.ipAddresses) : networkInfo.ipAddresses != null) return false;
+        if (groups != null ? !groups.equals(networkInfo.groups) : networkInfo.groups != null) return false;
+        return labels != null ? labels.equals(networkInfo.labels) : networkInfo.labels == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = networkName != null ? networkName.hashCode() : 0;
+        result = 31 * result + (ipAddresses != null ? ipAddresses.hashCode() : 0);
+        result = 31 * result + (groups != null ? groups.hashCode() : 0);
+        result = 31 * result + (labels != null ? labels.hashCode() : 0);
+        return result;
+    }
+}
+
+  public static class IPAddress extends AbstractDescribableImpl<IPAddress> {
+    @Extension
+    public static class DescriptorImpl extends Descriptor<IPAddress> {
+        public String getDisplayName() { return ""; }
+    }
+
+    private final String protocol;
+    private final String ipAddress;
+
+      @DataBoundConstructor
+    public IPAddress(String protocol, String ipAddress) {
+        this.protocol = protocol;
+        this.ipAddress = ipAddress;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public String getIpAddress() { return ipAddress; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IPAddress address = (IPAddress) o;
+
+        if (protocol != null ? !protocol.equals(address.protocol) : address.protocol != null) return false;
+        return ipAddress != null ? ipAddress.equals(address.ipAddress) : address.ipAddress == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = protocol != null ? protocol.hashCode() : 0;
+        result = 31 * result + (ipAddress != null ? ipAddress.hashCode() : 0);
+        return result;
+    }
+}
+
+  public static class NetworkLabel extends AbstractDescribableImpl<NetworkLabel> {
+    @Extension
+    public static class DescriptorImpl extends Descriptor<NetworkLabel> {
+        public String getDisplayName() { return ""; }
+    }
+
+    private final String key;
+    private final String value;
+
+    @DataBoundConstructor
+    public NetworkLabel(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() { return key; }
+
+    public String getValue() { return value; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NetworkLabel networkLabel = (NetworkLabel) o;
+
+        if (key != null ? !key.equals(networkLabel.key) : networkLabel.key != null) return false;
+        return value != null ? value.equals(networkLabel.value) : networkLabel.value == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key != null ? key.hashCode() : 0;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
+}
+
+  public static class Group extends AbstractDescribableImpl<Group> {
+    @Extension
+    public static class DescriptorImpl extends Descriptor<Group> {
+        public String getDisplayName() { return ""; }
+    }
+
+    private final String groupName;
+
+    @DataBoundConstructor
+    public Group(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public String getGroupName() { return groupName; }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Group group = (Group) o;
+
+        return groupName != null ? groupName.equals(group.groupName) : group.groupName == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = groupName!= null ? groupName.hashCode() : 0;
+        return result;
+    }
+}
+
 }
