@@ -1,0 +1,38 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+
+    <f:entry title="${%Name}" field="networkName">
+        <f:textbox clazz="optional"/>
+    </f:entry>
+
+    <f:entry title="${%Groups}">
+           <f:repeatableProperty field="groups" add="${%Add Groups}" minimum="0">
+                   <f:entry>
+                       <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
+                           <f:repeatableDeleteButton value="${%Delete Group}" /><br/>
+                       </div>
+                   </f:entry>
+           </f:repeatableProperty>
+    </f:entry>
+
+    <f:entry title="${%Labels}">
+           <f:repeatableProperty field="labels" add="${%Add Labels}" minimum="0">
+                    <f:entry>
+                         <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
+                              <f:repeatableDeleteButton value="${%Delete Label}" /><br/>
+                         </div>
+                    </f:entry>
+           </f:repeatableProperty>
+    </f:entry>
+
+    <f:entry title="${%IP Addresses}">
+           <f:repeatableProperty field="ipAddresses" add="${%Add IP Addresses}" minimum="0">
+                    <f:entry>
+                         <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
+                              <f:repeatableDeleteButton value="${%Delete IP Address}" /><br/>
+                         </div>
+                    </f:entry>
+           </f:repeatableProperty>
+        </f:entry>
+
+</j:jelly>
