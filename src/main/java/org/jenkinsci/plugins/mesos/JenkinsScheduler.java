@@ -144,7 +144,6 @@ public class JenkinsScheduler implements Scheduler {
     String principal = credentials == null ? "jenkins" : credentials.getUsername();
     String secret = credentials == null ? "" : Secret.toString(credentials.getPassword());
     // Have Mesos fill in the current user.
-    
     FrameworkInfo framework = FrameworkInfo.newBuilder()
             .setUser(targetUser == null ? "" : targetUser)
             .setName(mesosCloud.getFrameworkName())
@@ -163,6 +162,7 @@ public class JenkinsScheduler implements Scheduler {
             + "\n" + "Checkpointing: " + framework.getCheckpoint()
             + "\n" + "Failover Timeout: " + framework.getFailoverTimeout()
     );
+
     if (StringUtils.isNotBlank(secret)) {
 
       Credential credential = Credential.newBuilder()

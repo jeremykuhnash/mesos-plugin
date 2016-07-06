@@ -212,7 +212,7 @@ public class MesosCloud extends Cloud {
     this.setDeclineOfferDuration(declineOfferDuration);
     this.setFailoverTimeout(failoverTimeout);
     this.setCloudID(cloudID);
-    if(!onDemandRegistration) {
+    if(!onDemandRegistration || Mesos.getInstance(this).isSchedulerRunning()) {
 	    JenkinsScheduler.SUPERVISOR_LOCK.lock();
 	    try {
 	      restartMesos();
@@ -354,7 +354,12 @@ public class MesosCloud extends Cloud {
       Mesos.getInstance(this).startScheduler(jenkinsRootURL, this);
     } else {
       Mesos.getInstance(this).updateScheduler(jenkinsRootURL, this);
-      LOGGER.info("Mesos master has not changed, leaving the scheduler running");
+      if(onDemandRegistration) {
+        LOGGER.info("On-demand framework registration is enabled for future builds");
+      }
+      else {
+        LOGGER.info("Mesos master has not changed, leaving the scheduler running");
+      }
     }
 
   }
@@ -508,6 +513,9 @@ public class MesosCloud extends Cloud {
   }
 
   public String getCloudID() {
+    if(this.cloudID == null || this.cloudID.isEmpty()) {
+      this.cloudID = UUID.randomUUID().toString();
+    }
     return this.cloudID;
   }
 

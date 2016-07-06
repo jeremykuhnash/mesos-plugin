@@ -108,10 +108,7 @@ public abstract class Mesos {
    */
   public static synchronized Mesos getInstance(MesosCloud key) {
     if (!clouds.containsKey(key.getCloudID())) {
-      if(key.getCloudID() == null || key.getCloudID().isEmpty()){
-        key.setCloudID(UUID.randomUUID().toString());
-        LOGGER.info("Adding a new cloud with unique cloud ID:  " + key.getCloudID());
-      }
+      LOGGER.info("Adding a new cloud with unique cloud ID:  " + key.getCloudID());
       clouds.put(key.getCloudID(), new MesosImpl());
     }
     return clouds.get(key.getCloudID());
