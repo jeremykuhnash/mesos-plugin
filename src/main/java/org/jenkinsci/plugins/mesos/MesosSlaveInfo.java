@@ -879,7 +879,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
 
     public List<Group> getGroups() { return groups; }
 
-    public List<NetworkLabel> getNetworkLabels() { return labels; }
+    public List<NetworkLabel> getLabels() { return labels; }
 
     @Override
     public boolean equals(Object o) {

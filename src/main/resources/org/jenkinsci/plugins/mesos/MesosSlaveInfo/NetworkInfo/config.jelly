@@ -15,16 +15,6 @@
            </f:repeatableProperty>
     </f:entry>
 
-    <f:entry title="${%Labels}">
-           <f:repeatableProperty field="labels" add="${%Add Labels}" minimum="0">
-                    <f:entry>
-                         <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
-                              <f:repeatableDeleteButton value="${%Delete Label}" /><br/>
-                         </div>
-                    </f:entry>
-           </f:repeatableProperty>
-    </f:entry>
-
     <f:entry title="${%IP Addresses}">
            <f:repeatableProperty field="ipAddresses" add="${%Add IP Addresses}" minimum="0">
                     <f:entry>
@@ -33,6 +23,16 @@
                          </div>
                     </f:entry>
            </f:repeatableProperty>
+        </f:entry>
+
+    <f:entry title="${%Labels}">
+               <f:repeatableProperty field="labels" add="${%Add Labels}" minimum="0">
+                        <f:entry>
+                             <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
+                                  <f:repeatableDeleteButton value="${%Delete Label}" /><br/>
+                             </div>
+                        </f:entry>
+               </f:repeatableProperty>
         </f:entry>
 
 </j:jelly>
