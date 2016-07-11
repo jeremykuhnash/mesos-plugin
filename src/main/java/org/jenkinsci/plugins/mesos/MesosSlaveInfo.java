@@ -620,6 +620,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) return false;
       if (networking != null ? !networking.equals(that.networking) : that.networking != null) return false;
       if (portMappings != null ? !portMappings.equals(that.portMappings) : that.portMappings != null) return false;
+      if (networkInfos != null ? !networkInfos.equals(that.networkInfos) : that.networkInfos != null) return false;
       if (customDockerCommandShell != null ? !customDockerCommandShell.equals(that.customDockerCommandShell) : that.customDockerCommandShell != null)
         return false;
       if (dockerPrivilegedMode != null ? !dockerPrivilegedMode.equals(that.dockerPrivilegedMode) : that.dockerPrivilegedMode != null)
@@ -637,6 +638,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       result = 31 * result + (volumes != null ? volumes.hashCode() : 0);
       result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
       result = 31 * result + (networking != null ? networking.hashCode() : 0);
+      result = 31 * result + (networkInfos != null ? networkInfos.hashCode() : 0);
       result = 31 * result + (portMappings != null ? portMappings.hashCode() : 0);
       result = 31 * result + (useCustomDockerCommandShell ? 1 : 0);
       result = 31 * result + (customDockerCommandShell != null ? customDockerCommandShell.hashCode() : 0);
