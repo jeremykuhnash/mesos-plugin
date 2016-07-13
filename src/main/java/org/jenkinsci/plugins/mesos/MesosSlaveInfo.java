@@ -28,6 +28,8 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.mesos.Protos;
+import org.apache.mesos.Protos.NetworkInfo.Protocol;
 import org.apache.mesos.Protos.ContainerInfo.DockerInfo.Network;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -570,6 +572,10 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
           return networkInfos;
       }
 
+    public boolean hasNetworkInfos() {
+      return networkInfos != null && !networkInfos.isEmpty();
+    }
+
     public String getNetworking() {
       if (networking != null) {
         return networking;
@@ -875,11 +881,25 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
         return networkName;
     }
 
+    public boolean hasNetworkName() {
+      return networkName != null && !networkName.isEmpty();
+    }
+
     public List<IPAddress> getIpAddresses() { return ipAddresses; }
+
+    public boolean hasIpAddresses() { return ipAddresses != null && !ipAddresses.isEmpty(); }
 
     public List<Group> getGroups() { return groups; }
 
+    public boolean hasGroups() {
+      return groups != null && !groups.isEmpty();
+    }
+
     public List<NetworkLabel> getLabels() { return labels; }
+
+    public boolean hasLabels() {
+      return labels != null && !labels.isEmpty();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -920,11 +940,26 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
         this.ipAddress = ipAddress;
     }
 
-    public String getProtocol() {
-        return protocol;
+    public String getProtocol() { return protocol; }
+
+    public Protocol getProtocolEnum() {
+      if(protocol == "IPv4") {
+        return Protocol.IPv4;
+      }
+      if(protocol == "IPv6") {
+        return Protocol.IPv6;
+      }
+      else {
+        LOGGER.info("Invalid protocol");
+        return null;
+      }
     }
 
+    public boolean hasProtocol() { return protocol != null && !protocol.isEmpty(); }
+
     public String getIpAddress() { return ipAddress; }
+
+    public boolean hasIpAddress() { return ipAddress != null && !ipAddress.isEmpty(); }
 
     @Override
     public boolean equals(Object o) {
@@ -964,6 +999,8 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     public String getKey() { return key; }
 
     public String getValue() { return value; }
+
+    public boolean hasValue() { return value != null && !value.isEmpty(); }
 
     @Override
     public boolean equals(Object o) {

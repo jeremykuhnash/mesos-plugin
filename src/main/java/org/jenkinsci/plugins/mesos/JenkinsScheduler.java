@@ -53,6 +53,9 @@ import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.mesos.MesosSchedulerDriver;
 import org.apache.mesos.Protos;
+import org.apache.mesos.Protos.Label;
+import org.apache.mesos.Protos.Labels;
+import org.apache.mesos.Protos.NetworkInfo;
 import org.apache.mesos.Protos.Attribute;
 import org.apache.mesos.Protos.CommandInfo;
 import org.apache.mesos.Protos.ContainerInfo;
@@ -749,6 +752,51 @@ public class JenkinsScheduler implements Scheduler {
             volumeBuilder.setHostPath(volume.getHostPath());
           }
           containerInfoBuilder.addVolumes(volumeBuilder.build());
+        }
+      }
+
+      if (containerInfo.hasNetworkInfos()) {
+        for (MesosSlaveInfo.NetworkInfo networkInfo : containerInfo.getNetworkInfos()) {
+          LOGGER.info("Adding network info");
+
+          NetworkInfo.Builder networkInfoBuilder = NetworkInfo.newBuilder();
+
+          if (networkInfo.hasNetworkName()) {
+            networkInfoBuilder.setName(networkInfo.getNetworkName());
+          }
+
+          if (networkInfo.hasGroups()) {
+            for (MesosSlaveInfo.Group group : networkInfo.getGroups()) {
+              networkInfoBuilder.addGroups(group.getGroupName());
+            }
+          }
+
+          if (networkInfo.hasLabels()) {
+            Labels.Builder labels = Labels.newBuilder();
+            for (MesosSlaveInfo.NetworkLabel networkLabel : networkInfo.getLabels()) {
+              Label.Builder label = Label.newBuilder();
+              label.setKey(networkLabel.getKey());
+              if(networkLabel.hasValue()){
+                label.setValue(networkLabel.getValue());
+              }
+              labels.addLabels(label.build());
+            }
+            networkInfoBuilder.setLabels(labels.build());
+          }
+
+          if (networkInfo.hasIpAddresses()) {
+            for (MesosSlaveInfo.IPAddress address : networkInfo.getIpAddresses()) {
+              NetworkInfo.IPAddress.Builder ip = NetworkInfo.IPAddress.newBuilder();
+              if(address.hasIpAddress()){
+                ip.setIpAddress(address.getIpAddress());
+              }
+              if(address.hasProtocol()){
+                ip.setProtocol(address.getProtocolEnum());
+              }
+              networkInfoBuilder.addIpAddresses(ip.build());
+            }
+          }
+          containerInfoBuilder.addNetworkInfos(networkInfoBuilder.build());
         }
       }
 
