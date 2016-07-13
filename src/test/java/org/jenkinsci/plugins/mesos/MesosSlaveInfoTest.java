@@ -70,6 +70,7 @@ public class MesosSlaveInfoTest {
                 new LinkedList<MesosSlaveInfo.Volume>(),
                 new LinkedList<MesosSlaveInfo.Parameter>(),
                 Protos.ContainerInfo.DockerInfo.Network.BRIDGE.name(),
+                null,
                 null
         );
         return new MesosSlaveInfo(
