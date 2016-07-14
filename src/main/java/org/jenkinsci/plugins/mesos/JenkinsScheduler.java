@@ -330,6 +330,8 @@ public class JenkinsScheduler implements Scheduler {
         double rejectOfferDuration = mesosCloud.getDeclineOfferDurationDouble();
         LOGGER.fine("No slave in queue. Rejecting offers for " + rejectOfferDuration + " ms");
         Filters filters = Filters.newBuilder().setRefuseSeconds(rejectOfferDuration).build();
+        LOGGER.info(offer.getId().toString());
+        LOGGER.info(filters.toString());
         driver.declineOffer(offer.getId(), filters);
         continue;
       }

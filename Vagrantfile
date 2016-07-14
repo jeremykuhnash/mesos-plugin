@@ -27,8 +27,10 @@ $script = <<SCRIPT
  if [ $MESOS_VERSION == 1.0.0-rc2 ] 
   then 
     wget http://repos.mesosphere.com/ubuntu/pool/main/m/mesos/mesos_1.0.0-1.0.73.rc2.ubuntu1404_amd64.deb  
+    apt-get -y install zookeeperd
     apt-get -y install gdebi-core
     gdebi --option=APT::Get::force-yes=1,APT::Get::Assume-Yes=1 -n mesos_1.0.0-1.0.73.rc2.ubuntu1404_amd64.deb
+    rm -f *.deb
   else  
  # Install
  apt-get -y install --force-yes --install-recommends mesos=${MESOS_VERSION}\*
