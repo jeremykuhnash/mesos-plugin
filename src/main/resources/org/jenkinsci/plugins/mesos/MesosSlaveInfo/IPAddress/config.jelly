@@ -2,8 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
 
     <f:entry title="${%Protocol}" field="protocol">
-        <f:radioBlock id="protocol.IPv4" name="protocol" title="${%IPv4}" value="IPv4" inline="true" checked="${instance.protocol == 'IPv4'}" />
-        <f:radioBlock id="protocol.IPv6" name="protocol" title="${%IPv6}" value="IPv6" inline="true" checked="${instance.protocol == null || instance.networking == 'IPv6'}">
+        <f:textbox clazz="optional"/>
     </f:entry>
 
     <f:entry title="${%IP Address}" field="ipAddress">
