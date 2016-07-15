@@ -47,7 +47,6 @@ import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.collections4.OrderedMapIterator;
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang.StringUtils;
@@ -330,8 +329,6 @@ public class JenkinsScheduler implements Scheduler {
         double rejectOfferDuration = mesosCloud.getDeclineOfferDurationDouble();
         LOGGER.fine("No slave in queue. Rejecting offers for " + rejectOfferDuration + " ms");
         Filters filters = Filters.newBuilder().setRefuseSeconds(rejectOfferDuration).build();
-        LOGGER.info(offer.getId().toString());
-        LOGGER.info(filters.toString());
         driver.declineOffer(offer.getId(), filters);
         continue;
       }
