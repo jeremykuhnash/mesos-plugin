@@ -943,10 +943,10 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     public String getProtocol() { return protocol; }
 
     public Protocol getProtocolEnum() {
-      if(protocol == "IPv4") {
+      if(protocol.equals("IPv4")) {
         return Protocol.IPv4;
       }
-      if(protocol == "IPv6") {
+      if(protocol.equals("IPv6")) {
         return Protocol.IPv6;
       }
       else {
